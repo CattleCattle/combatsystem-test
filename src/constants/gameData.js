@@ -262,6 +262,8 @@ export const MYSTERY_EVENTS = [
 export const GAME_STATES = {
   MENU: "menu",
   BATTLE: "battle",
+  SWORDFIGHT_BATTLE: "swordfightBattle",
+  SWORDFIGHT_TEST: "swordfightTest",
   VICTORY: "victory",
   DEFEAT: "defeat",
   UPGRADE: "upgrade",

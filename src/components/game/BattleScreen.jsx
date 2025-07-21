@@ -28,6 +28,7 @@ export default function BattleScreen() {
   const {
     battleQueue,
     actionBars,
+    isInitialized,
     initializeBattleQueue,
     getNextReadyCombatant,
     markCombatantActed,
@@ -37,18 +38,26 @@ export default function BattleScreen() {
 
   // Initialiser la file d'attaque au début du combat
   useEffect(() => {
-    if (gameState.gameState === GAME_STATES.BATTLE && playerTeam && enemyBoar) {
+    if (gameState.gameState === GAME_STATES.BATTLE && playerTeam && enemyBoar && !isInitialized) {
+      console.log('Initializing battle queue...');
       initializeBattleQueue();
     }
-  }, [gameState.gameState, playerTeam, enemyBoar, initializeBattleQueue]);
+  }, [gameState.gameState, playerTeam, enemyBoar, isInitialized, initializeBattleQueue]);
 
   // Gérer les tours automatiquement
   useEffect(() => {
-    if (gameState.gameState !== GAME_STATES.BATTLE || waitingForAction) return;
+    if (gameState.gameState !== GAME_STATES.BATTLE || waitingForAction || !isInitialized) return;
 
     const nextCombatant = getNextReadyCombatant();
     if (!nextCombatant) return;
 
+    // Éviter de traiter le même combattant plusieurs fois
+    if (currentActiveCharacter && 
+        currentActiveCharacter.uniqueId === nextCombatant.uniqueId) {
+      return;
+    }
+
+    console.log('Processing turn for:', nextCombatant.name, nextCombatant.type);
     setCurrentActiveCharacter(nextCombatant);
 
     if (nextCombatant.type === 'enemy') {
@@ -58,36 +67,49 @@ export default function BattleScreen() {
         handleEnemyTurn(nextCombatant);
       }, 1000);
     } else if (nextCombatant.type === 'player') {
-      // Tour du joueur - attendre la sélection
-      if (selectedBoar && selectedBoar.id === nextCombatant.id) {
-        // Le bon sanglier est déjà sélectionné
-        return;
-      } else {
-        // Sélectionner automatiquement le sanglier dont c'est le tour
-        dispatch({ type: actions.SET_SELECTED_BOAR, payload: nextCombatant });
+      // Tour du joueur - sélectionner le sanglier automatiquement
+      const playerBoar = playerTeam.find(boar => boar.id === nextCombatant.id);
+      if (playerBoar && playerBoar.hp > 0) {
+        dispatch({ type: actions.SET_SELECTED_BOAR, payload: playerBoar });
       }
     }
-  }, [gameState.gameState, waitingForAction, getNextReadyCombatant, selectedBoar, dispatch, actions]);
+  }, [gameState.gameState, waitingForAction, isInitialized, getNextReadyCombatant, currentActiveCharacter, playerTeam, dispatch, actions]);
 
   // Gérer l'attaque de l'ennemi
   const handleEnemyTurn = (enemyCombatant) => {
+    console.log('Enemy turn:', enemyCombatant.name);
     const aliveTeamMembers = playerTeam.filter((boar) => boar.hp > 0);
-    if (aliveTeamMembers.length === 0) return;
+    if (aliveTeamMembers.length === 0) {
+      setWaitingForAction(false);
+      return;
+    }
 
     const randomTarget = aliveTeamMembers[Math.floor(Math.random() * aliveTeamMembers.length)];
     const randomMove = enemyCombatant.moves[Math.floor(Math.random() * enemyCombatant.moves.length)];
     
+    console.log(`${enemyCombatant.name} attacks ${randomTarget.name} with ${randomMove.name}`);
+    
     executeMove(enemyCombatant, randomTarget, randomMove, false);
     markCombatantActed(enemyCombatant);
-    setCurrentActiveCharacter(null);
-    setWaitingForAction(false);
+    
+    setTimeout(() => {
+      setCurrentActiveCharacter(null);
+      setWaitingForAction(false);
+    }, 1500);
   };
 
   // Gérer l'attaque du joueur
   const handlePlayerAttack = (move) => {
-    if (!currentActiveCharacter || currentActiveCharacter.type !== 'player' || waitingForAction) return;
-    if (!selectedBoar || selectedBoar.id !== currentActiveCharacter.id) return;
+    if (!currentActiveCharacter || currentActiveCharacter.type !== 'player' || waitingForAction) {
+      console.log('Cannot attack: wrong conditions');
+      return;
+    }
+    if (!selectedBoar || selectedBoar.id !== currentActiveCharacter.id) {
+      console.log('Cannot attack: wrong boar selected');
+      return;
+    }
 
+    console.log(`${selectedBoar.name} attacks with ${move.name}`);
     setWaitingForAction(true);
     executeMove(selectedBoar, enemyBoar, move, true);
     markCombatantActed(currentActiveCharacter);
@@ -330,13 +352,7 @@ function BattleUI({ playerTeam, currentActiveCharacter, selectedBoar, battleLog,
         </div>
       </div>
 
-      {/* Menu des attaques */}
-      <MoveSelection 
-        selectedBoar={selectedBoar}
-        currentActiveCharacter={currentActiveCharacter}
-        waitingForAction={waitingForAction}
-        onPlayerAttack={onPlayerAttack}
-      />
+      {/* Menu des attaques supprimé - utilise AttackMenu dans le panel de gauche */}
 
       {/* Log de combat */}
       <BattleLog battleLog={battleLog} />
@@ -375,44 +391,6 @@ function TeamStatus({ playerTeam }) {
           </div>
         ))}
       </div>
-    </div>
-  );
-}
-
-function MoveSelection({ selectedBoar, currentActiveCharacter, waitingForAction, onPlayerAttack }) {
-  const canAttack = selectedBoar && 
-                   currentActiveCharacter && 
-                   currentActiveCharacter.type === 'player' && 
-                   selectedBoar.id === currentActiveCharacter.id && 
-                   !waitingForAction;
-
-  if (!canAttack) return null;
-
-  return (
-    <div className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-2">
-      {selectedBoar.moves.map((move, index) => (
-        <button
-          key={index}
-          onClick={() => onPlayerAttack(move)}
-          className="bg-gradient-to-b from-blue-700 to-blue-900 hover:from-blue-600 hover:to-blue-800 border-2 border-cyan-400 rounded-lg p-3 transition-all duration-200 transform hover:scale-105 active:scale-95"
-        >
-          <div className="text-cyan-200 font-bold text-sm mb-1">
-            {move.name.toUpperCase()}
-          </div>
-          <div className="text-cyan-300 text-xs">
-            {move.heal
-              ? `SOIN ${move.heal}`
-              : move.healTeam
-              ? `SOIN ÉQUIPE ${move.healTeam}`
-              : `DMG ${move.damage}`}
-          </div>
-          <div className="text-cyan-400 text-xs mt-1">
-            {move.type.toUpperCase()}
-            {move.recoil && " • RECUL"}
-            {move.priority && " • PRIORITÉ"}
-          </div>
-        </button>
-      ))}
     </div>
   );
 }

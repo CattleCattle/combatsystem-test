@@ -9,13 +9,16 @@
     "lint": "next lint",
     "test": "jest",
     "test:watch": "jest --watch",
-    "test:coverage": "jest --coverage"
+    "test:coverage": "jest --coverage",
+    "test:combat": "node scripts/test-combat-system.js",
+    "test:ci": "jest --ci --coverage --watchAll=false"
   },
   "dependencies": {
     "framer-motion": "^12.23.6",
     "next": "^15.4.2",
     "react": "^18",
-    "react-dom": "^18"
+    "react-dom": "^18",
+    "swordfight-engine": "^1.0.6"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^6.6.3",

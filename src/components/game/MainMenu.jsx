@@ -58,6 +58,20 @@ export default function MainMenu() {
           </button>
           
           <button
+            onClick={() => navigateTo(GAME_STATES.SWORDFIGHT_TEST)}
+            className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-bold py-3 px-6 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg"
+          >
+            🧪 Test SwordFight Engine
+          </button>
+          
+          <button
+            onClick={() => navigateTo(GAME_STATES.SWORDFIGHT_BATTLE)}
+            className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-bold py-3 px-6 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg"
+          >
+            ⚔️ Mode SwordFight Engine ⚔️
+          </button>
+          
+          <button
             onClick={() => navigateTo(GAME_STATES.INVENTORY)}
             className="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-lg transition-colors"
           >
@@ -82,6 +96,7 @@ export default function MainMenu() {
         <div className="text-xs text-gray-500">
           <p>• Dirigez une équipe de 3 sangliers</p>
           <p>• Choisissez votre chemin entre les combats</p>
+          <p>• Testez le nouveau moteur SwordFight Engine !</p>
           <p>• Créez vos sangliers personnalisés</p>
           <p>• Participez aux tournois pour gagner de l'or !</p>
         </div>

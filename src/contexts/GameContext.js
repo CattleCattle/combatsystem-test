@@ -28,6 +28,9 @@ export const ACTIONS = {
   UPDATE_TEAM: 'UPDATE_TEAM',
   ADD_MESSAGE: 'ADD_MESSAGE',
   SET_EVENT_MODAL: 'SET_EVENT_MODAL',
+  // Actions SwordFight
+  UPDATE_TEAM_HP: 'UPDATE_TEAM_HP',
+  UPDATE_ENEMY_HP: 'UPDATE_ENEMY_HP',
 };
 
 // État initial
@@ -145,6 +148,25 @@ function gameReducer(state, action) {
     
     case ACTIONS.SET_CURRENT_BOAR_INDEX:
       return { ...state, currentBoarIndex: action.payload };
+    
+    // Actions SwordFight
+    case ACTIONS.UPDATE_TEAM_HP:
+      return {
+        ...state,
+        playerTeam: state.playerTeam.map(boar => ({
+          ...boar,
+          hp: action.payload[boar.id] !== undefined ? action.payload[boar.id] : boar.hp
+        }))
+      };
+    
+    case ACTIONS.UPDATE_ENEMY_HP:
+      return {
+        ...state,
+        enemyBoar: state.enemyBoar ? {
+          ...state.enemyBoar,
+          hp: action.payload
+        } : null
+      };
     
     case ACTIONS.RESET_GAME:
       return {
