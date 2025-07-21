@@ -260,7 +260,5 @@ export function useBattleActions() {
 
   return {
     executeMove,
-    playerAttack,
-    enemyAttack,
   };
 }
