@@ -1,3 +1,5 @@
+import MINI_BOSSES from '../constants/miniBosses';
+import BOSSES from '../constants/bosses';
 // Équipe initiale du joueur
 export const INITIAL_PLAYER_TEAM = [
   {
@@ -59,9 +61,21 @@ export const GAME_STATES = {
 
 // Génération de chemins aléatoires
 export function generatePathOptions(floor) {
+  // Si étage boss/mini-boss, ne proposer qu'un chemin boss
+  if (floor % 5 === 0) {
+    return [
+      {
+        id: 1,
+        name: floor % 10 === 0 ? 'BOSS FINAL' : 'Mini-Boss',
+        type: 'boss',
+        difficulty: floor % 10 === 0 ? 2 : 1.5,
+        description: floor % 10 === 0 ? 'Affrontez un boss légendaire !' : 'Un mini-boss redoutable vous attend.'
+      }
+    ];
+  }
+
+  // Sinon, génération normale
   const pathTypes = ['battle', 'boss', 'healing', 'treasure', 'mystery'];
-  
-  // Assurer qu'il y a toujours au moins un chemin de combat
   const paths = [
     {
       id: 1,
@@ -71,10 +85,7 @@ export function generatePathOptions(floor) {
       description: 'Un combat contre des ennemis standards.'
     }
   ];
-
-  // Ajouter 2-3 chemins supplémentaires
   const additionalPaths = Math.floor(Math.random() * 2) + 2;
-  
   for (let i = 2; i <= additionalPaths; i++) {
     const randomType = pathTypes[Math.floor(Math.random() * pathTypes.length)];
     const path = {
@@ -82,7 +93,6 @@ export function generatePathOptions(floor) {
       type: randomType,
       difficulty: Math.max(1, floor + Math.floor(Math.random() * 2) - 1),
     };
-
     switch (randomType) {
       case 'battle':
         path.name = 'Combat Dangereux';
@@ -105,25 +115,56 @@ export function generatePathOptions(floor) {
         path.description = 'Quelque chose d\'imprévisible vous attend...';
         break;
     }
-
     paths.push(path);
   }
-
   return paths;
 }
 
 // Génération d'ennemis
 export function generateEnemy(floor, difficulty = 1) {
+
+  // Si étage boss/mini-boss, piocher dans le pool dédié
+  if (floor % 10 === 0) {
+    const boss = BOSSES[Math.floor(Math.random() * BOSSES.length)];
+    const scaling = 2;
+    return {
+      id: Date.now(),
+      name: boss.name,
+      hp: Math.floor(boss.baseHp * scaling),
+      maxHp: Math.floor(boss.baseHp * scaling),
+      attack: Math.floor(boss.baseAttack * scaling),
+      defense: Math.floor(boss.baseDefense * scaling),
+      speed: boss.baseSpeed,
+      moves: boss.moves,
+      isBoss: true,
+      bossTier: 'boss',
+    };
+  } else if (floor % 5 === 0) {
+    const miniBoss = MINI_BOSSES[Math.floor(Math.random() * MINI_BOSSES.length)];
+    const scaling = 1.5;
+    return {
+      id: Date.now(),
+      name: miniBoss.name,
+      hp: Math.floor(miniBoss.baseHp * scaling),
+      maxHp: Math.floor(miniBoss.baseHp * scaling),
+      attack: Math.floor(miniBoss.baseAttack * scaling),
+      defense: Math.floor(miniBoss.baseDefense * scaling),
+      speed: miniBoss.baseSpeed,
+      moves: miniBoss.moves,
+      isBoss: true,
+      bossTier: 'mini-boss',
+    };
+  }
+
+  // Sinon, génération normale
   const enemyTypes = [
     { name: "Gobelin Sauvage", baseHp: 40, baseAttack: 15, baseDefense: 8 },
     { name: "Orc Brutal", baseHp: 60, baseAttack: 20, baseDefense: 12 },
     { name: "Troll des Cavernes", baseHp: 80, baseAttack: 25, baseDefense: 15 },
     { name: "Dragon Mineur", baseHp: 120, baseAttack: 35, baseDefense: 20 },
   ];
-
   const randomType = enemyTypes[Math.floor(Math.random() * enemyTypes.length)];
   const scaling = 1 + (floor - 1) * 0.2 + (difficulty - 1) * 0.1;
-
   return {
     id: Date.now(),
     name: randomType.name,

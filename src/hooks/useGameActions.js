@@ -39,7 +39,7 @@ export function useGameActions() {
       case "boss":
         const enemy = generateEnemy(currentFloor, path.difficulty);
         dispatch({ type: actions.SET_ENEMY_BOAR, payload: enemy });
-        dispatch({ type: actions.SET_GAME_STATE, payload: GAME_STATES.BATTLE });
+        dispatch({ type: actions.SET_GAME_STATE, payload: GAME_STATES.SWORDFIGHT_BATTLE });
         dispatch({ type: actions.SET_BATTLE_LOG, payload: [`Étage ${currentFloor} - ${path.name} !`] });
         dispatch({ type: actions.SET_IS_PLAYER_TURN, payload: true });
         dispatch({ type: actions.SET_SELECTED_BOAR, payload: null });

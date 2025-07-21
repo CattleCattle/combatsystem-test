@@ -3,7 +3,7 @@ import { GameProvider, useGameContext } from '../../contexts/GameContext.js';
 import { GAME_STATES } from '../../constants/gameData.js';
 import MainMenu from './MainMenu.jsx';
 import PathChoice from './PathChoice.jsx';
-import BattleScreen from './BattleScreen.jsx';
+// import BattleScreen from './BattleScreen.jsx';
 import { SwordFightBattleScreen } from './SwordFightBattleScreen.jsx';
 import { SimpleSwordFightTest } from './SimpleSwordFightTest.jsx';
 import UpgradeScreen from './UpgradeScreen.jsx';
@@ -23,7 +23,7 @@ function GameContent() {
     case GAME_STATES.PATH_CHOICE:
       return <PathChoice />;
     case GAME_STATES.BATTLE:
-      return <BattleScreen />;
+      return <SwordFightBattleScreen />;
     case GAME_STATES.SWORDFIGHT_BATTLE:
       return <SwordFightBattleScreen />;
     case GAME_STATES.SWORDFIGHT_TEST:

@@ -1,3 +1,4 @@
+// Fichier supprimé : ancien écran de combat remplacé par SwordFightBattleScreen
 import React, { useEffect, useState } from 'react';
 import { useGameContext } from '../../contexts/GameContext.js';
 import { useBattleActions } from '../../hooks/useGameActions.js';

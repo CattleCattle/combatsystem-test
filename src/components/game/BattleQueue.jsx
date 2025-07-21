@@ -1,3 +1,4 @@
+// Fichier supprimé : ancienne file d'initiative remplacée par SwordFight
 import React from 'react';
 import { motion } from 'framer-motion';
 

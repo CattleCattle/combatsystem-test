@@ -1,3 +1,4 @@
+// Fichier supprimé : ancien hook de gestion de file de combat, remplacé par SwordFight
 import { useState, useEffect, useCallback } from 'react';
 
 /**

@@ -82,29 +82,15 @@ export function SwordFightBattleScreen() {
 
   // Initialiser le combat quand les données sont prêtes
   useEffect(() => {
-    if (combatService && playerTeam && !combatState.isInitialized) {
-      // Créer un ennemi de test si aucun ennemi n'est défini
-      let testEnemyBoar = enemyBoar;
-      if (!enemyBoar) {
-        testEnemyBoar = {
-          id: 999,
-          name: "Sanglier Sauvage",
-          hp: 120,
-          maxHp: 120,
-          attack: 28,
-          defense: 18,
-          speed: 22,
-          moves: [
-            { name: "Charge Féroce", damage: 32, type: "physique" },
-            { name: "Coup de Défense", damage: 25, type: "physique" },
-            { name: "Rugissement", damage: 20, type: "intimidation" },
-            { name: "Attaque Sauvage", damage: 38, type: "physique" }
-          ]
-        };
-        // Dispatcher l'ennemi de test
-        dispatch({ type: 'SET_ENEMY_BOAR', payload: testEnemyBoar });
-      }
-      
+    if (
+      combatService &&
+      playerTeam &&
+      playerTeam.length > 0 &&
+      !combatState.isInitialized &&
+      enemyBoar &&
+      typeof enemyBoar.hp === 'number' &&
+      Array.isArray(enemyBoar.moves) && enemyBoar.moves.length > 0
+    ) {
       initializeCombat();
     }
   }, [combatService, playerTeam, enemyBoar, combatState.isInitialized, dispatch]);
